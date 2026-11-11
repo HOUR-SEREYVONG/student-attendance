@@ -29,9 +29,9 @@
         <div>
           <h1 class="text-lg font-bold text-white flex items-center gap-2">
             Smart Attendance Manager
-            <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-medium">Search Suggestion Mode</span>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-medium">Strict Verification</span>
           </h1>
-          <p class="text-xs text-slate-400">ប្រព័ន្ធកត់វត្តមាន Live ៥ ថ្នាក់ • ស្វែងរកឈ្មោះស្វ័យប្រវត្តិ</p>
+          <p class="text-xs text-slate-400">ប្រព័ន្ធកត់វត្តមាន Live • សិស្សអាចជ្រើសតែឈ្មោះដែលមានក្នុងបញ្ជី</p>
         </div>
       </div>
 
@@ -91,7 +91,7 @@
 
         <div class="flex items-center gap-4 text-center">
           <div class="bg-slate-900/80 px-4 py-2 rounded-xl border border-slate-800">
-            <span class="text-xs text-slate-400 block">Total Roster</span>
+            <span class="text-xs text-slate-400 block">Total Students</span>
             <span id="statTotal" class="text-xl font-black text-white">0</span>
           </div>
           <div class="bg-emerald-950/40 px-4 py-2 rounded-xl border border-emerald-800/40">
@@ -154,7 +154,7 @@
 
           <div class="pt-3 border-t border-slate-700 flex items-center justify-between text-xs text-slate-400">
             <span class="text-emerald-400 font-medium flex items-center gap-1">
-              <i data-lucide="shield-check" class="w-4 h-4"></i> Roster Protection Active
+              <i data-lucide="shield-check" class="w-4 h-4"></i> Strict Verification: Unauthorized additions blocked
             </span>
             <button onclick="toggleAudioChime()" id="btnAudioToggle" class="text-emerald-400 flex items-center gap-1 font-medium">
               <i data-lucide="volume-2" class="w-4 h-4"></i> Chime: ON
@@ -196,7 +196,7 @@
       </div>
     </div>
 
-    <!-- TAB 3: ROSTER MANAGER (PASTE EXCEL LIST) -->
+    <!-- TAB 3: ROSTER MANAGER (ONLY TEACHER ADDS/EDITS NAMES) -->
     <div id="viewRoster" class="hidden space-y-6">
       <div class="bg-slate-800/80 border border-slate-700 rounded-3xl p-6">
         <div class="flex items-center justify-between pb-4 border-b border-slate-700 mb-4">
@@ -205,17 +205,17 @@
               <i data-lucide="file-text" class="w-5 h-5 text-emerald-400"></i>
               Manage Student Names for <span id="manageClassLabel" class="text-emerald-400">Class</span>
             </h3>
-            <p class="text-xs text-slate-400">Paste your actual student names from Excel (1 name per line). IDs are automatically numbered (1, 2, 3...).</p>
+            <p class="text-xs text-slate-400">Only the teacher can configure this list. Paste names (1 per line). IDs are automatically numbered 1, 2, 3...</p>
           </div>
           <button onclick="saveCustomRoster()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-xs font-bold rounded-xl text-white flex items-center gap-1.5 shadow">
             <i data-lucide="save" class="w-4 h-4"></i> Save Roster
           </button>
         </div>
-        <textarea id="rosterPasteArea" rows="12" class="w-full bg-slate-900 border border-slate-700 rounded-2xl p-4 text-xs font-mono text-slate-200 focus:outline-none focus:border-emerald-500 leading-relaxed" placeholder="សុខ ចាន់ដារ៉ា&#10;កែវ សុភ័ក្រ&#10;ហេង វិសាល..."></textarea>
+        <textarea id="rosterPasteArea" rows="12" class="w-full bg-slate-900 border border-slate-700 rounded-2xl p-4 text-xs font-mono text-slate-200 focus:outline-none focus:border-emerald-500 leading-relaxed" placeholder="Type or paste student names here (1 name per line)...&#10;សុខ ចាន់ដារ៉ា&#10;កែវ សុភ័ក្រ&#10;ហេង វិសាល"></textarea>
       </div>
     </div>
 
-    <!-- TAB 4: STUDENT SEARCH & CHECK-IN PORTAL (ON MOBILE) -->
+    <!-- TAB 4: STUDENT CHECK-IN PORTAL (MOBILE VIEW) -->
     <div id="viewStudent" class="hidden max-w-lg mx-auto">
       <div class="bg-slate-800/90 border border-slate-700 rounded-3xl p-6 sm:p-8 shadow-2xl">
         <div class="text-center mb-6">
@@ -225,26 +225,35 @@
           <h2 class="text-2xl font-bold text-white">ចុះវត្តមានសិស្ស</h2>
           <p class="text-xs text-slate-400 mt-1" id="studentViewClassName">Attendance Self-Check-in</p>
           <div class="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] bg-emerald-950/80 border border-emerald-500/40 text-emerald-300">
-            <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Live Search Available
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Live Roster Verification
+          </div>
+        </div>
+
+        <!-- Real-time Error / Warning Alert Box -->
+        <div id="studentErrorAlert" class="hidden mb-4 p-4 rounded-2xl bg-rose-950/90 border border-rose-500/70 text-xs text-rose-200 flex items-start gap-3">
+          <i data-lucide="alert-circle" class="w-5 h-5 text-rose-400 shrink-0 mt-0.5"></i>
+          <div>
+            <div class="font-bold text-rose-300 text-sm">ព័ត៌មានមិនត្រឹមត្រូវ! (Mismatch Error)</div>
+            <div id="studentErrorMessage" class="mt-1 leading-relaxed">ឈ្មោះ ឬ លេខសម្គាល់ដែលអ្នកបានបញ្ចូល មិនត្រឹមត្រូវ ឬ គ្មានក្នុងបញ្ជីវត្តមានរបស់គ្រូទេ។ សូមជ្រើសរើសឈ្មោះពីបញ្ជី ហើយដាក់លេខសម្គាល់ឱ្យបានត្រឹមត្រូវ រួចចុច Submit ម្តងទៀត!</div>
           </div>
         </div>
 
         <form id="studentCheckInForm" onsubmit="handleStudentSubmit(event)" class="space-y-4">
-          <!-- SEARCHABLE NAME INPUT WITH AUTO-SUGGESTION DROPDOWN -->
+          <!-- SEARCHABLE NAME INPUT WITH AUTOCOMPLETE DROPDOWN -->
           <div class="relative">
             <label class="block text-xs font-semibold text-slate-300 mb-1">
-              Search Your Name / វាយស្វែងរកឈ្មោះ <span class="text-rose-400">*</span>
+              Select or Search Your Name / ស្វែងរកឈ្មោះរបស់អ្នក <span class="text-rose-400">*</span>
             </label>
             <div class="relative">
-              <input type="text" id="studentInputName" autocomplete="off" required placeholder="Type your name (e.g. ហេង or Heng)..." oninput="handleSearchInput(this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500">
+              <input type="text" id="studentInputName" autocomplete="off" required placeholder="Type to search your name..." oninput="handleSearchInput(this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500">
               <div class="absolute left-3.5 top-3.5 text-slate-400">
                 <i data-lucide="search" class="w-4 h-4"></i>
               </div>
             </div>
 
-            <!-- POPUP SUGGESTION LIST -->
+            <!-- POPUP SUGGESTION DROPDOWN -->
             <div id="searchSuggestionDropdown" class="hidden absolute left-0 right-0 top-full mt-1.5 bg-slate-950/95 border border-slate-700 rounded-2xl shadow-2xl max-h-52 overflow-y-auto z-50 divide-y divide-slate-800 backdrop-blur">
-              <!-- Dynamically populated matches -->
+              <!-- Dynamically populated from teacher's roster -->
             </div>
           </div>
 
@@ -253,8 +262,8 @@
             <label class="block text-xs font-semibold text-slate-300 mb-1">
               Student ID / Roll Number (លេខសម្គាល់ ឬ លេខរៀង) <span class="text-rose-400">*</span>
             </label>
-            <input type="text" id="studentInputId" required placeholder="Auto-filled or enter number (1, 2, 3...)" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500">
-            <p class="text-[11px] text-slate-400 mt-1">💡 លេខរៀងនឹងបំពេញស្វ័យប្រវត្តិពេលជ្រើសរើសឈ្មោះខាងលើ</p>
+            <input type="text" id="studentInputId" required placeholder="Auto-filled or type number (e.g. 1, 2, 14...)" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500">
+            <p class="text-[11px] text-slate-400 mt-1">💡 លេខសម្គាល់ត្រូវតែត្រូវនឹងឈ្មោះក្នុងបញ្ជីគ្រូ (លេខសុទ្ធ៖ 1, 2, 3...)</p>
           </div>
 
           <button type="submit" id="studentSubmitBtn" class="w-full py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-lg shadow-emerald-600/30 transition-all flex items-center justify-center gap-2 mt-2">
@@ -292,9 +301,9 @@
     let allClassesData = {};
     let audioEnabled = true;
 
-    // Initialize with EMPTY lists (user types/pastes their own roster when teaching)
+    // Load multi-class storage. If empty, starts with zero students.
     function initMultiClassStorage() {
-      const stored = localStorage.getItem('attendance_multiclass_store_v3');
+      const stored = localStorage.getItem('attendance_strict_store_v4');
       if (stored) {
         try { 
           allClassesData = JSON.parse(stored); 
@@ -307,7 +316,7 @@
         if (!allClassesData[key]) {
           allClassesData[key] = { 
             name: conf.name, 
-            students: [] // Clean empty roster by default!
+            students: [] // Clean empty list. Only teacher adds names!
           };
         } else {
           allClassesData[key].name = conf.name;
@@ -317,11 +326,11 @@
     }
 
     function saveAllData() {
-      localStorage.setItem('attendance_multiclass_store_v3', JSON.stringify(allClassesData));
+      localStorage.setItem('attendance_strict_store_v4', JSON.stringify(allClassesData));
     }
 
     function getCurrentStudents() {
-      return allClassesData[currentClassKey].students || [];
+      return (allClassesData[currentClassKey] && allClassesData[currentClassKey].students) ? allClassesData[currentClassKey].students : [];
     }
 
     function onClassChange(val) {
@@ -400,7 +409,7 @@
     }
 
     // ==========================================
-    // TEACHER SSE STREAM (LIVE FEED)
+    // TEACHER SSE STREAM (LIVE INCOMING CHECK-INS)
     // ==========================================
     function startLiveStreamListener() {
       if (eventSource) {
@@ -431,33 +440,28 @@
       };
     }
 
+    // STRICT RECORDING: REJECTS ANY NAME NOT PRE-ENTERED BY TEACHER!
     function recordStudentPresent(idOrRoll, rawName, notify = true) {
       const list = getCurrentStudents();
       const cleanId = String(idOrRoll).trim();
       const cleanName = String(rawName).trim().toLowerCase();
 
-      // Find in teacher's saved list
+      // STRICT CHECK: Must exist in teacher's list with matching ID and Name
       const student = list.find(s => 
-        (String(s.id).trim() === cleanId || String(s.rollNo).trim() === cleanId) ||
+        (String(s.id).trim() === cleanId || String(s.rollNo).trim() === cleanId) &&
         s.name.trim().toLowerCase() === cleanName
       );
 
-      if (student) {
-        if (student.status === 'P') return student;
-        student.status = 'P';
-        student.timestamp = new Date().toLocaleTimeString('en-US', { hour12: false });
-      } else {
-        // If not in roster, teacher's view auto-records them
-        const newRoll = list.length + 1;
-        const newStu = {
-          id: cleanId || `${newRoll}`,
-          rollNo: newRoll,
-          name: rawName,
-          status: 'P',
-          timestamp: new Date().toLocaleTimeString('en-US', { hour12: false })
-        };
-        list.push(newStu);
+      // IF NOT FOUND: STRICTLY REJECT. NEVER ADD TO TEACHER'S LIST!
+      if (!student) {
+        console.warn(`[REJECTED] Unknown or mismatched submission: ${rawName} (${idOrRoll}). Not in teacher's roster.`);
+        return null;
       }
+
+      if (student.status === 'P') return student; // Already present
+
+      student.status = 'P';
+      student.timestamp = new Date().toLocaleTimeString('en-US', { hour12: false });
 
       saveAllData();
       updateDashboardCounts();
@@ -490,10 +494,10 @@
 
       if (list.length === 0) {
         listEl.innerHTML = `
-          <div class="py-12 text-center text-slate-500 text-xs">
+          <div class="py-14 text-center text-slate-500 text-xs">
             <i data-lucide="clipboard-list" class="w-8 h-8 mx-auto mb-2 opacity-40"></i>
             មិនទាន់មានឈ្មោះសិស្សនៅឡើយទេ!<br>
-            សូមចុចលើផ្ទាំង <b>"Edit Names"</b> ដើម្បីបិទភ្ជាប់ (Paste) បញ្ជីឈ្មោះសិស្ស។
+            សូមចុចលើផ្ទាំង <b>"Edit Names"</b> ដើម្បីបិទភ្ជាប់ (Paste) បញ្ជីឈ្មោះសិស្សមុនពេលបង្រៀន។
           </div>
         `;
         lucide.createIcons();
@@ -614,6 +618,7 @@
       document.body.removeChild(link);
     }
 
+    // TEACHER PASTES/EDITS NAMES HERE
     function saveCustomRoster() {
       const text = document.getElementById('rosterPasteArea').value;
       const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
@@ -642,11 +647,11 @@
       renderRosterList();
       renderPaperHelper();
       updateDashboardCounts();
-      alert(`Saved ${updated.length} students for ${allClassesData[currentClassKey].name}!`);
+      alert(`Saved ${updated.length} students for ${allClassesData[currentClassKey].name}! IDs are set from 1 to ${updated.length}.`);
     }
 
     // ==========================================
-    // AUTOCOMPLETE SEARCH LOGIC FOR STUDENTS
+    // STUDENT SEARCH & STRICT VERIFICATION LOGIC
     // ==========================================
     function handleSearchInput(query) {
       const dropdown = document.getElementById('searchSuggestionDropdown');
@@ -666,8 +671,8 @@
 
       if (matches.length === 0) {
         dropdown.innerHTML = `
-          <div class="px-4 py-3 text-xs text-rose-400">
-            មិនមានឈ្មោះនេះក្នុងបញ្ជីថ្នាក់ទេ! សូមពិនិត្យមើលអក្ខរាវិរុទ្ធ។
+          <div class="px-4 py-3 text-xs text-rose-400 font-semibold">
+            ❌ មិនមានឈ្មោះនេះក្នុងបញ្ជីថ្នាក់របស់គ្រូទេ!
           </div>
         `;
         dropdown.classList.remove('hidden');
@@ -677,7 +682,7 @@
       dropdown.innerHTML = matches.map(s => `
         <div onclick="selectStudentSuggestion('${s.name.replace(/'/g, "\\'")}', '${s.id}')" class="px-4 py-2.5 hover:bg-emerald-600/20 cursor-pointer flex items-center justify-between transition-colors">
           <div class="text-sm font-semibold text-white">${s.name}</div>
-          <span class="text-xs px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 font-mono font-bold">#${s.id}</span>
+          <span class="text-xs px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 font-mono font-bold">ID: #${s.id}</span>
         </div>
       `).join('');
 
@@ -688,9 +693,9 @@
       document.getElementById('studentInputName').value = name;
       document.getElementById('studentInputId').value = id;
       document.getElementById('searchSuggestionDropdown').classList.add('hidden');
+      document.getElementById('studentErrorAlert').classList.add('hidden');
     }
 
-    // Close suggestion dropdown when clicking outside
     document.addEventListener('click', (e) => {
       const input = document.getElementById('studentInputName');
       const dropdown = document.getElementById('searchSuggestionDropdown');
@@ -704,14 +709,35 @@
       const name = document.getElementById('studentInputName').value.trim();
       const id = document.getElementById('studentInputId').value.trim();
       const btn = document.getElementById('studentSubmitBtn');
+      const errorBox = document.getElementById('studentErrorAlert');
 
+      // 1. STRICT VERIFICATION: MUST MATCH TEACHER'S EXISTING LIST
+      const list = getCurrentStudents();
+      const matched = list.find(s => 
+        (String(s.id).trim() === id || String(s.rollNo).trim() === id) &&
+        s.name.trim().toLowerCase() === name.toLowerCase()
+      );
+
+      // IF NOT MATCHED: TELL BACK TO STUDENT IMMEDIATELY. DO NOT PROCEED!
+      if (!matched) {
+        errorBox.classList.remove('hidden');
+        document.getElementById('studentErrorMessage').innerHTML = `
+          ឈ្មោះ <b>"${name}"</b> និង លេខសម្គាល់ <b>"${id}"</b> មិនមាន ឬ មិនត្រូវគ្នាក្នុងបញ្ជីវត្តមានរបស់គ្រូទេ!<br>
+          <span class="text-rose-300 font-semibold">👉 សូមជ្រើសរើសឈ្មោះរបស់អ្នកពីបញ្ជីស្វែងរកខាងលើ និង ពិនិត្យលេខសម្គាល់ឱ្យបានត្រឹមត្រូវ រួចចុច Submit ម្តងទៀត!</span>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      // If matched, proceed with submission
+      errorBox.classList.add('hidden');
       btn.disabled = true;
       btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Submitting...`;
       lucide.createIcons();
 
       const payload = JSON.stringify({
-        studentId: id,
-        studentName: name,
+        studentId: matched.id,
+        studentName: matched.name,
         timestamp: new Date().toLocaleTimeString('en-US', { hour12: false })
       });
 
@@ -724,7 +750,7 @@
         document.getElementById('studentCheckInForm').classList.add('hidden');
         const box = document.getElementById('studentSuccessBox');
         box.classList.remove('hidden');
-        document.getElementById('successStudentDetails').innerText = `${name} (ID: ${id}) - Transmitted to Teacher Screen!`;
+        document.getElementById('successStudentDetails').innerText = `${matched.name} (ID: ${matched.id}) - Transmitted to Teacher Screen!`;
       })
       .catch(err => {
         alert("Transmission error: " + err.message);
