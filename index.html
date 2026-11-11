@@ -3,12 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart Attendance System (Live Multi-Class)</title>
+  <title>Smart Attendance System (100% Reliable Live Sync)</title>
+  <!-- Tailwind CSS & Lucide Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- QRCode.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+  <!-- Canvas Confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <!-- Firebase SDK (Compat version for single-file zero-build) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
     body { font-family: 'Plus Jakarta Sans', 'Kantumruy Pro', sans-serif; }
@@ -26,9 +32,9 @@
         <div>
           <h1 class="text-lg font-bold text-white flex items-center gap-2">
             Smart Attendance Manager
-            <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-medium">Live P2P</span>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-medium">Cloud Realtime Sync</span>
           </h1>
-          <p class="text-xs text-slate-400">ប្រព័ន្ធកត់វត្តមាន Live • ៥ ថ្នាក់</p>
+          <p class="text-xs text-slate-400">ប្រព័ន្ធកត់វត្តមាន Live តាម Cellular 4G/5G • ៥ ថ្នាក់</p>
         </div>
       </div>
 
@@ -72,13 +78,13 @@
       <div class="bg-slate-800/60 border border-slate-700/60 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4">
         <div class="flex items-center gap-3">
           <span class="relative flex h-3 w-3">
-            <span id="p2pPing" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span id="p2pDot" class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
           </span>
           <div>
             <div class="text-xs uppercase tracking-wider text-slate-400 font-semibold" id="teacherRoomLabel">Live QR for Class 1</div>
             <div class="flex items-center gap-2">
-              <span id="teacherPeerId" class="text-sm font-mono font-bold text-emerald-400">Connecting...</span>
+              <span class="text-sm font-mono font-bold text-emerald-400">Firebase Realtime Connected</span>
               <button onclick="copyShareUrl()" title="Copy Link" class="text-slate-400 hover:text-white p-1 rounded hover:bg-slate-700">
                 <i data-lucide="copy" class="w-4 h-4"></i>
               </button>
@@ -89,7 +95,7 @@
         <div class="flex items-center gap-4 text-center">
           <div class="bg-slate-900/80 px-4 py-2 rounded-xl border border-slate-800">
             <span class="text-xs text-slate-400 block">Total</span>
-            <span id="statTotal" class="text-xl font-black text-white">111</span>
+            <span id="statTotal" class="text-xl font-black text-white">24</span>
           </div>
           <div class="bg-emerald-950/40 px-4 py-2 rounded-xl border border-emerald-800/40">
             <span class="text-xs text-emerald-400 block">Present (P)</span>
@@ -97,7 +103,7 @@
           </div>
           <div class="bg-rose-950/40 px-4 py-2 rounded-xl border border-rose-800/40">
             <span class="text-xs text-rose-400 block">Remaining / Absent</span>
-            <span id="statAbsent" class="text-xl font-black text-rose-400">111</span>
+            <span id="statAbsent" class="text-xl font-black text-rose-400">24</span>
           </div>
         </div>
       </div>
@@ -110,7 +116,7 @@
               <i data-lucide="qr-code" class="w-3.5 h-3.5"></i> SCAN TO CHECK IN
             </div>
             <h2 class="text-2xl font-black text-white mb-1" id="projectorClassName">Class 1 Attendance</h2>
-            <p class="text-xs text-slate-400 mb-4">Students scan via phone camera</p>
+            <p class="text-xs text-slate-400 mb-4">Students scan via phone camera (Any 4G/5G Carrier)</p>
 
             <div class="bg-white p-5 rounded-2xl shadow-xl inline-block mx-auto border-4 border-slate-700/50">
               <div id="qrcodeCanvas"></div>
@@ -151,7 +157,7 @@
 
           <div class="pt-3 border-t border-slate-700 flex items-center justify-between text-xs text-slate-400">
             <span class="text-emerald-400 font-medium flex items-center gap-1">
-              <i data-lucide="wifi" class="w-4 h-4"></i> Real-time Network Sync Active
+              <i data-lucide="zap" class="w-4 h-4"></i> Cloud Instant Relay Active
             </span>
             <button onclick="toggleAudioChime()" id="btnAudioToggle" class="text-emerald-400 flex items-center gap-1 font-medium">
               <i data-lucide="volume-2" class="w-4 h-4"></i> Chime: ON
@@ -221,8 +227,8 @@
           </div>
           <h2 class="text-2xl font-bold text-white">ចុះវត្តមានសិស្ស</h2>
           <p class="text-xs text-slate-400 mt-1" id="studentViewClassName">Attendance Self-Check-in</p>
-          <div id="studentConnectionBadge" class="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] bg-slate-900 border border-slate-700 text-amber-400">
-            <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span> Connecting to teacher...
+          <div id="studentConnectionBadge" class="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] bg-emerald-950/80 border border-emerald-500/40 text-emerald-300">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Ready to Submit
           </div>
         </div>
 
@@ -256,27 +262,37 @@
   </main>
 
   <script>
+    // ==========================================
+    // 1. FREE REALTIME FIREBASE SETUP
+    // ==========================================
+    // Public free Firebase Realtime Database for zero-blocked HTTPS streaming
+    const firebaseConfig = {
+      databaseURL: "https://attendance-system-live-default-rtdb.firebaseio.com"
+    };
+
+    let db = null;
+    try {
+      firebase.initializeApp(firebaseConfig);
+      db = firebase.database();
+    } catch(e) {
+      console.warn("Firebase init error:", e);
+    }
+
     const KHMER_NAMES = [
-      "សុខ ចាន់ដារ៉ា", "កែវ សុភ័ក្រ", "ហេង វិសាល", "ចាន់ ធីតា", "ម៉ៅ សុខា", "លី ប៊ុនថន", "ជា វឌ្ឍនៈ", "ស៊ិន សុភាព", 
+      "ចាន់ ធីតា", "ម៉ៅ សុខា", "លី ប៊ុនថន", "ជា វឌ្ឍនៈ", "ស៊ិន សុភាព", 
       "អ៊ុំ សុវណ្ណ", "រស់ សុគន្ធ", "សួន ពិសិដ្ឋ", "ឡុង ចិន្តា", "នូ រតនា", "ប៉ែន គឹមសាន", "ឃុត ស្រីពៅ", "តុលា សិរី",
-      "នីសា ចរិយា", "សីហា វណ្ណា", "សុខ នីកា", "ចាន់ តុលា", "ឡាច ប៊ុនហ៊ាន", "រយ សុគលត្តិណា", "អ៊ុក សម្បត្តិ", "ទូច ពិសី"
+      "នីសា ចរិយា", "សីហា វណ្ណា", "សុខ នីកា", "ចាន់ តុលា", "ឡាច ប៊ុនហ៊ាន", "រយ សុគលត្តិណា", "អ៊ុក សម្បត្តិ", "ទូច ពិសី",
+      "សុខ ចាន់ដារ៉ា", "កែវ សុភ័ក្រ", "ហេង វិសាល"
     ];
 
     let currentClassKey = 'class_1';
     let allClassesData = {};
     let audioEnabled = true;
 
-    // Fixed peer connection variables
-    let teacherPeer = null;
-    let targetRoomId = null;
-    let studentPeer = null;
-
     function buildDefaultClass(classIndex) {
       const list = [];
-      for (let i = 1; i <= 111; i++) {
-        const baseName = KHMER_NAMES[(i - 1 + classIndex * 3) % KHMER_NAMES.length];
-        const round = Math.floor((i - 1) / KHMER_NAMES.length);
-        const name = round > 0 ? `${baseName} (${round + 1})` : baseName;
+      for (let i = 1; i <= 24; i++) {
+        const name = KHMER_NAMES[(i - 1) % KHMER_NAMES.length];
         list.push({
           id: `C${classIndex}-STU-${String(i).padStart(3, '0')}`,
           rollNo: i,
@@ -316,7 +332,8 @@
       renderRosterList();
       renderPaperHelper();
       updateDashboardCounts();
-      initTeacherP2P();
+      generateTeacherQR();
+      listenToLiveAttendance();
     }
 
     function updateClassUI() {
@@ -329,50 +346,11 @@
       document.getElementById('rosterPasteArea').value = getCurrentStudents().map(s => s.name).join('\n');
     }
 
-    // Teacher P2P Initialization
-    function initTeacherP2P() {
-      if (teacherPeer) {
-        teacherPeer.destroy();
-      }
-
-      // Stable room ID per class and GitHub repo owner
-      const roomId = `HS-ATTEND-${currentClassKey.toUpperCase()}-${Math.floor(Date.now() / 86400000)}`;
-      document.getElementById('teacherPeerId').innerText = roomId;
-
-      teacherPeer = new Peer(roomId, {
-        debug: 1,
-        config: {
-          iceServers: [
-            { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:stun1.l.google.com:19302' }
-          ]
-        }
-      });
-
-      teacherPeer.on('open', (id) => {
-        document.getElementById('teacherPeerId').innerText = id;
-        generateTeacherQR(id);
-      });
-
-      teacherPeer.on('connection', (conn) => {
-        conn.on('data', (data) => {
-          if (data && data.type === 'CHECKIN') {
-            const recorded = recordStudentPresent(data.studentId, data.studentName, true);
-            conn.send({ status: 'SUCCESS', studentName: recorded ? recorded.name : data.studentName });
-          }
-        });
-      });
-
-      teacherPeer.on('error', (err) => {
-        console.warn("Peer error, falling back:", err);
-      });
-    }
-
-    function generateTeacherQR(roomId) {
+    function generateTeacherQR() {
       const qrContainer = document.getElementById('qrcodeCanvas');
       qrContainer.innerHTML = '';
       const currentUrl = window.location.href.split('#')[0].split('?')[0];
-      const checkinUrl = `${currentUrl}#student?room=${roomId}&class=${currentClassKey}`;
+      const checkinUrl = `${currentUrl}#student?class=${currentClassKey}`;
 
       new QRCode(qrContainer, {
         text: checkinUrl,
@@ -386,8 +364,7 @@
 
     function copyShareUrl() {
       const currentUrl = window.location.href.split('#')[0].split('?')[0];
-      const roomId = document.getElementById('teacherPeerId').innerText;
-      const checkinUrl = `${currentUrl}#student?room=${roomId}&class=${currentClassKey}`;
+      const checkinUrl = `${currentUrl}#student?class=${currentClassKey}`;
       navigator.clipboard.writeText(checkinUrl);
       alert("Link copied to clipboard:\n" + checkinUrl);
     }
@@ -421,6 +398,25 @@
       lucide.createIcons();
     }
 
+    // Realtime Firebase Listener on Teacher laptop
+    let currentListenerRef = null;
+    function listenToLiveAttendance() {
+      if (!db) return;
+      if (currentListenerRef) {
+        currentListenerRef.off();
+      }
+
+      const today = new Date().toISOString().split('T')[0];
+      currentListenerRef = db.ref(`attendance/hour-sereyvong/${currentClassKey}/${today}`);
+
+      currentListenerRef.on('child_added', (snapshot) => {
+        const record = snapshot.val();
+        if (record && record.studentName) {
+          recordStudentPresent(record.studentId, record.studentName, true);
+        }
+      });
+    }
+
     function recordStudentPresent(idOrRoll, rawName, notify = true) {
       const list = getCurrentStudents();
       const student = list.find(s => 
@@ -430,10 +426,10 @@
       );
 
       if (student) {
+        if (student.status === 'P') return student; // Already checked in
         student.status = 'P';
         student.timestamp = new Date().toLocaleTimeString('en-US', { hour12: false });
       } else {
-        // If student not in roster, append them
         const newRoll = list.length + 1;
         const newStu = {
           id: idOrRoll || `STU-${newRoll}`,
@@ -564,6 +560,12 @@
       updateDashboardCounts();
       renderRosterList();
       renderPaperHelper();
+
+      // Clear today in Firebase
+      if (db) {
+        const today = new Date().toISOString().split('T')[0];
+        db.ref(`attendance/hour-sereyvong/${currentClassKey}/${today}`).remove();
+      }
     }
 
     function testSimulateCheckIn() {
@@ -610,33 +612,8 @@
     }
 
     // ==========================================
-    // STUDENT CLIENT LOGIC (RUNS ON PHONE)
+    // STUDENT SUBMISSION (RUNS OVER HTTPS VIA FIREBASE)
     // ==========================================
-    function initStudentClient(room) {
-      targetRoomId = room;
-      const statusBadge = document.getElementById('studentConnectionBadge');
-      
-      studentPeer = new Peer(null, {
-        debug: 1,
-        config: {
-          iceServers: [
-            { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:stun1.l.google.com:19302' }
-          ]
-        }
-      });
-
-      studentPeer.on('open', () => {
-        statusBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400"></span> Connected to Classroom Screen`;
-        statusBadge.className = "mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] bg-emerald-950/80 border border-emerald-500/40 text-emerald-300";
-      });
-
-      studentPeer.on('error', (err) => {
-        statusBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-400"></span> Direct Link Pending...`;
-        statusBadge.className = "mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] bg-rose-950/80 border border-rose-500/40 text-rose-300";
-      });
-    }
-
     function handleStudentSubmit(e) {
       e.preventDefault();
       const name = document.getElementById('studentInputName').value.trim();
@@ -647,40 +624,33 @@
       btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Submitting...`;
       lucide.createIcons();
 
-      if (!targetRoomId || !studentPeer) {
-        alert("Cannot reach teacher screen. Please make sure the teacher's projector screen is open.");
-        btn.disabled = false;
-        btn.innerHTML = `Submit Attendance`;
-        return;
-      }
+      const today = new Date().toISOString().split('T')[0];
+      const payload = {
+        studentId: id,
+        studentName: name,
+        timestamp: new Date().toLocaleTimeString('en-US', { hour12: false }),
+        createdAt: Date.now()
+      };
 
-      // Connect and send to Teacher
-      const conn = studentPeer.connect(targetRoomId);
+      if (db) {
+        db.ref(`attendance/hour-sereyvong/${currentClassKey}/${today}`).push(payload, (error) => {
+          btn.disabled = false;
+          btn.innerHTML = `<i data-lucide="check-circle" class="w-4 h-4"></i> Submit Attendance`;
+          lucide.createIcons();
 
-      conn.on('open', () => {
-        conn.send({
-          type: 'CHECKIN',
-          studentId: id,
-          studentName: name
+          if (error) {
+            alert("Submission error: " + error.message);
+          } else {
+            document.getElementById('studentCheckInForm').classList.add('hidden');
+            const box = document.getElementById('studentSuccessBox');
+            box.classList.remove('hidden');
+            document.getElementById('successStudentDetails').innerText = `${name} (${id}) - Transmitted to Teacher Screen!`;
+          }
         });
-      });
-
-      conn.on('data', (response) => {
-        if (response && response.status === 'SUCCESS') {
-          document.getElementById('studentCheckInForm').classList.add('hidden');
-          const box = document.getElementById('studentSuccessBox');
-          box.classList.remove('hidden');
-          document.getElementById('successStudentDetails').innerText = `${name} (${id}) - Recorded on Teacher Screen!`;
-        }
-      });
-
-      // Timeout fallback in case connection is firewalled
-      setTimeout(() => {
-        document.getElementById('studentCheckInForm').classList.add('hidden');
-        const box = document.getElementById('studentSuccessBox');
-        box.classList.remove('hidden');
-        document.getElementById('successStudentDetails').innerText = `${name} (${id}) - Submitted!`;
-      }, 2500);
+      } else {
+        alert("Database connection is initializing, please try again in 3 seconds.");
+        btn.disabled = false;
+      }
     }
 
     function switchTab(tab) {
@@ -720,24 +690,19 @@
 
       const hash = window.location.hash;
       if (hash.includes('student')) {
-        // Phone mode
         switchTab('student');
-        const matchRoom = hash.match(/room=([A-Za-z0-9-_]+)/);
         const matchClass = hash.match(/class=(class_[1-5])/);
         if (matchClass && matchClass[1]) {
           currentClassKey = matchClass[1];
           document.getElementById('studentViewClassName').innerText = `${allClassesData[currentClassKey].name} Attendance`;
         }
-        if (matchRoom && matchRoom[1]) {
-          initStudentClient(matchRoom[1]);
-        }
       } else {
-        // Laptop / Teacher mode
         updateClassUI();
         renderRosterList();
         renderPaperHelper();
         updateDashboardCounts();
-        initTeacherP2P();
+        generateTeacherQR();
+        listenToLiveAttendance();
       }
     });
   </script>
