@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart Attendance System (100% Reliable Live Sync)</title>
+  <title>Smart Attendance System (Zero-Auth Live Sync)</title>
   <!-- Tailwind CSS & Lucide Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -11,9 +11,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <!-- Canvas Confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-  <!-- Firebase SDK (Compat version for single-file zero-build) -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -32,9 +29,9 @@
         <div>
           <h1 class="text-lg font-bold text-white flex items-center gap-2">
             Smart Attendance Manager
-            <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-medium">Cloud Realtime Sync</span>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-medium">Instant Open Stream</span>
           </h1>
-          <p class="text-xs text-slate-400">ប្រព័ន្ធកត់វត្តមាន Live តាម Cellular 4G/5G • ៥ ថ្នាក់</p>
+          <p class="text-xs text-slate-400">ប្រព័ន្ធកត់វត្តមាន Live មិនជាប់ Permission • ៥ ថ្នាក់</p>
         </div>
       </div>
 
@@ -84,7 +81,7 @@
           <div>
             <div class="text-xs uppercase tracking-wider text-slate-400 font-semibold" id="teacherRoomLabel">Live QR for Class 1</div>
             <div class="flex items-center gap-2">
-              <span class="text-sm font-mono font-bold text-emerald-400">Firebase Realtime Connected</span>
+              <span id="streamStatusBadge" class="text-sm font-mono font-bold text-emerald-400">Stream Live: Listening</span>
               <button onclick="copyShareUrl()" title="Copy Link" class="text-slate-400 hover:text-white p-1 rounded hover:bg-slate-700">
                 <i data-lucide="copy" class="w-4 h-4"></i>
               </button>
@@ -116,7 +113,7 @@
               <i data-lucide="qr-code" class="w-3.5 h-3.5"></i> SCAN TO CHECK IN
             </div>
             <h2 class="text-2xl font-black text-white mb-1" id="projectorClassName">Class 1 Attendance</h2>
-            <p class="text-xs text-slate-400 mb-4">Students scan via phone camera (Any 4G/5G Carrier)</p>
+            <p class="text-xs text-slate-400 mb-4">Students scan via phone camera (Any 4G/5G Network)</p>
 
             <div class="bg-white p-5 rounded-2xl shadow-xl inline-block mx-auto border-4 border-slate-700/50">
               <div id="qrcodeCanvas"></div>
@@ -157,7 +154,7 @@
 
           <div class="pt-3 border-t border-slate-700 flex items-center justify-between text-xs text-slate-400">
             <span class="text-emerald-400 font-medium flex items-center gap-1">
-              <i data-lucide="zap" class="w-4 h-4"></i> Cloud Instant Relay Active
+              <i data-lucide="zap" class="w-4 h-4"></i> Server-Sent Events (SSE) Stream Active
             </span>
             <button onclick="toggleAudioChime()" id="btnAudioToggle" class="text-emerald-400 flex items-center gap-1 font-medium">
               <i data-lucide="volume-2" class="w-4 h-4"></i> Chime: ON
@@ -228,7 +225,7 @@
           <h2 class="text-2xl font-bold text-white">ចុះវត្តមានសិស្ស</h2>
           <p class="text-xs text-slate-400 mt-1" id="studentViewClassName">Attendance Self-Check-in</p>
           <div id="studentConnectionBadge" class="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] bg-emerald-950/80 border border-emerald-500/40 text-emerald-300">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Ready to Submit
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Ready to Submit
           </div>
         </div>
 
@@ -263,20 +260,14 @@
 
   <script>
     // ==========================================
-    // 1. FREE REALTIME FIREBASE SETUP
+    // ZERO-AUTH REAL-TIME PUBSUB TOPIC
     // ==========================================
-    // Public free Firebase Realtime Database for zero-blocked HTTPS streaming
-    const firebaseConfig = {
-      databaseURL: "https://attendance-system-live-default-rtdb.firebaseio.com"
-    };
-
-    let db = null;
-    try {
-      firebase.initializeApp(firebaseConfig);
-      db = firebase.database();
-    } catch(e) {
-      console.warn("Firebase init error:", e);
+    // Uses open standard HTTPS PubSub topic based on your GitHub username & class
+    function getTopicUrl(classKey) {
+      return `https://ntfy.sh/nie_hour_sereyvong_attend_${classKey}`;
     }
+
+    let eventSource = null;
 
     const KHMER_NAMES = [
       "ចាន់ ធីតា", "ម៉ៅ សុខា", "លី ប៊ុនថន", "ជា វឌ្ឍនៈ", "ស៊ិន សុភាព", 
@@ -333,7 +324,7 @@
       renderPaperHelper();
       updateDashboardCounts();
       generateTeacherQR();
-      listenToLiveAttendance();
+      startLiveStreamListener();
     }
 
     function updateClassUI() {
@@ -398,23 +389,38 @@
       lucide.createIcons();
     }
 
-    // Realtime Firebase Listener on Teacher laptop
-    let currentListenerRef = null;
-    function listenToLiveAttendance() {
-      if (!db) return;
-      if (currentListenerRef) {
-        currentListenerRef.off();
+    // ==========================================
+    // TEACHER SSE STREAM (LISTENS TO PHONES VIA HTTPS)
+    // ==========================================
+    function startLiveStreamListener() {
+      if (eventSource) {
+        eventSource.close();
       }
 
-      const today = new Date().toISOString().split('T')[0];
-      currentListenerRef = db.ref(`attendance/hour-sereyvong/${currentClassKey}/${today}`);
+      const streamUrl = `${getTopicUrl(currentClassKey)}/sse`;
+      eventSource = new EventSource(streamUrl);
 
-      currentListenerRef.on('child_added', (snapshot) => {
-        const record = snapshot.val();
-        if (record && record.studentName) {
-          recordStudentPresent(record.studentId, record.studentName, true);
+      eventSource.onopen = () => {
+        document.getElementById('streamStatusBadge').innerText = "Live Stream: Connected";
+      };
+
+      eventSource.onmessage = (event) => {
+        try {
+          const payload = JSON.parse(event.data);
+          if (payload && payload.message) {
+            const data = JSON.parse(payload.message);
+            if (data && data.studentName) {
+              recordStudentPresent(data.studentId, data.studentName, true);
+            }
+          }
+        } catch (e) {
+          // heartbeat/keepalive message
         }
-      });
+      };
+
+      eventSource.onerror = () => {
+        document.getElementById('streamStatusBadge').innerText = "Reconnecting stream...";
+      };
     }
 
     function recordStudentPresent(idOrRoll, rawName, notify = true) {
@@ -426,7 +432,7 @@
       );
 
       if (student) {
-        if (student.status === 'P') return student; // Already checked in
+        if (student.status === 'P') return student;
         student.status = 'P';
         student.timestamp = new Date().toLocaleTimeString('en-US', { hour12: false });
       } else {
@@ -560,12 +566,6 @@
       updateDashboardCounts();
       renderRosterList();
       renderPaperHelper();
-
-      // Clear today in Firebase
-      if (db) {
-        const today = new Date().toISOString().split('T')[0];
-        db.ref(`attendance/hour-sereyvong/${currentClassKey}/${today}`).remove();
-      }
     }
 
     function testSimulateCheckIn() {
@@ -612,7 +612,7 @@
     }
 
     // ==========================================
-    // STUDENT SUBMISSION (RUNS OVER HTTPS VIA FIREBASE)
+    // STUDENT SUBMISSION VIA OPEN POST (HTTPS)
     // ==========================================
     function handleStudentSubmit(e) {
       e.preventDefault();
@@ -624,33 +624,29 @@
       btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Submitting...`;
       lucide.createIcons();
 
-      const today = new Date().toISOString().split('T')[0];
-      const payload = {
+      const payload = JSON.stringify({
         studentId: id,
         studentName: name,
-        timestamp: new Date().toLocaleTimeString('en-US', { hour12: false }),
-        createdAt: Date.now()
-      };
+        timestamp: new Date().toLocaleTimeString('en-US', { hour12: false })
+      });
 
-      if (db) {
-        db.ref(`attendance/hour-sereyvong/${currentClassKey}/${today}`).push(payload, (error) => {
-          btn.disabled = false;
-          btn.innerHTML = `<i data-lucide="check-circle" class="w-4 h-4"></i> Submit Attendance`;
-          lucide.createIcons();
-
-          if (error) {
-            alert("Submission error: " + error.message);
-          } else {
-            document.getElementById('studentCheckInForm').classList.add('hidden');
-            const box = document.getElementById('studentSuccessBox');
-            box.classList.remove('hidden');
-            document.getElementById('successStudentDetails').innerText = `${name} (${id}) - Transmitted to Teacher Screen!`;
-          }
-        });
-      } else {
-        alert("Database connection is initializing, please try again in 3 seconds.");
+      // Simple open POST fetch - No API keys, no security rules, no login
+      fetch(getTopicUrl(currentClassKey), {
+        method: 'POST',
+        body: payload
+      })
+      .then(res => {
+        if (!res.ok) throw new Error("HTTP error " + res.status);
+        document.getElementById('studentCheckInForm').classList.add('hidden');
+        const box = document.getElementById('studentSuccessBox');
+        box.classList.remove('hidden');
+        document.getElementById('successStudentDetails').innerText = `${name} (${id}) - Transmitted to Teacher Screen!`;
+      })
+      .catch(err => {
+        alert("Transmission error: " + err.message);
         btn.disabled = false;
-      }
+        btn.innerHTML = `Submit Attendance`;
+      });
     }
 
     function switchTab(tab) {
@@ -702,7 +698,7 @@
         renderPaperHelper();
         updateDashboardCounts();
         generateTeacherQR();
-        listenToLiveAttendance();
+        startLiveStreamListener();
       }
     });
   </script>
