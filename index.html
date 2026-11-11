@@ -29,7 +29,7 @@
         <div>
           <h1 class="text-lg font-bold text-white flex items-center gap-2">
             Smart Attendance Manager
-            <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-medium">Cloud Roster Sync</span>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-medium">Live Roster</span>
           </h1>
           <p class="text-xs text-slate-400">ប្រព័ន្ធកត់វត្តមាន Live • សិស្សស្វែងរកឈ្មោះដែលគ្រូបានបញ្ចូល</p>
         </div>
@@ -208,7 +208,7 @@
             <p class="text-xs text-slate-400">Type or paste your actual student names (1 name per line). IDs are automatically numbered 1, 2, 3...</p>
           </div>
           <button onclick="saveCustomRoster()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-xs font-bold rounded-xl text-white flex items-center gap-1.5 shadow">
-            <i data-lucide="save" class="w-4 h-4"></i> Save Roster & Publish to Students
+            <i data-lucide="save" class="w-4 h-4"></i> Save Roster & Sync
           </button>
         </div>
         <textarea id="rosterPasteArea" rows="12" class="w-full bg-slate-900 border border-slate-700 rounded-2xl p-4 text-xs font-mono text-slate-200 focus:outline-none focus:border-emerald-500 leading-relaxed" placeholder="Type or paste student names here (1 name per line)...&#10;សុខ ចាន់ដារ៉ា&#10;កែវ សុភ័ក្រ&#10;ហេង វិសាល"></textarea>
@@ -225,21 +225,21 @@
           <h2 class="text-2xl font-bold text-white">ចុះវត្តមានសិស្ស</h2>
           <p class="text-xs text-slate-400 mt-1" id="studentViewClassName">Attendance Self-Check-in</p>
           <div id="studentRosterStatusBadge" class="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] bg-emerald-950/80 border border-emerald-500/40 text-emerald-300">
-            <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Live Roster Synced
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Live Roster Active
           </div>
         </div>
 
-        <!-- Real-time Error / Warning Alert Box -->
+        <!-- Real-time Error Alert -->
         <div id="studentErrorAlert" class="hidden mb-4 p-4 rounded-2xl bg-rose-950/90 border border-rose-500/70 text-xs text-rose-200 flex items-start gap-3">
           <i data-lucide="alert-circle" class="w-5 h-5 text-rose-400 shrink-0 mt-0.5"></i>
           <div>
             <div class="font-bold text-rose-300 text-sm">ព័ត៌មានមិនត្រឹមត្រូវ! (Mismatch Error)</div>
-            <div id="studentErrorMessage" class="mt-1 leading-relaxed">ឈ្មោះ ឬ លេខសម្គាល់ដែលអ្នកបានបញ្ចូល មិនត្រឹមត្រូវ ឬ គ្មានក្នុងបញ្ជីវត្តមានរបស់គ្រូទេ។ សូមជ្រើសរើសឈ្មោះពីបញ្ជីស្វែងរក ហើយដាក់លេខសម្គាល់ឱ្យបានត្រឹមត្រូវ រួចចុច Submit ម្តងទៀត!</div>
+            <div id="studentErrorMessage" class="mt-1 leading-relaxed">ឈ្មោះ ឬ លេខសម្គាល់ដែលអ្នកបានបញ្ចូល មិនត្រូវគ្នាក្នុងបញ្ជីវត្តមានរបស់គ្រូទេ។ សូមពិនិត្យ ហើយបញ្ចូលឡើងវិញ!</div>
           </div>
         </div>
 
         <form id="studentCheckInForm" onsubmit="handleStudentSubmit(event)" class="space-y-4">
-          <!-- SEARCHABLE NAME INPUT WITH AUTOCOMPLETE DROPDOWN -->
+          <!-- SEARCHABLE NAME INPUT -->
           <div class="relative">
             <label class="block text-xs font-semibold text-slate-300 mb-1">
               Search Your Name / ស្វែងរកឈ្មោះរបស់អ្នក <span class="text-rose-400">*</span>
@@ -252,9 +252,7 @@
             </div>
 
             <!-- POPUP SUGGESTION DROPDOWN -->
-            <div id="searchSuggestionDropdown" class="hidden absolute left-0 right-0 top-full mt-1.5 bg-slate-950/95 border border-slate-700 rounded-2xl shadow-2xl max-h-52 overflow-y-auto z-50 divide-y divide-slate-800 backdrop-blur">
-              <!-- Dynamically populated from teacher's roster -->
-            </div>
+            <div id="searchSuggestionDropdown" class="hidden absolute left-0 right-0 top-full mt-1.5 bg-slate-950/95 border border-slate-700 rounded-2xl shadow-2xl max-h-52 overflow-y-auto z-50 divide-y divide-slate-800 backdrop-blur"></div>
           </div>
 
           <!-- PURE NUMBER ID FIELD -->
@@ -262,7 +260,7 @@
             <label class="block text-xs font-semibold text-slate-300 mb-1">
               Student ID / Roll Number (លេខសម្គាល់ ឬ លេខរៀង) <span class="text-rose-400">*</span>
             </label>
-            <input type="text" id="studentInputId" required placeholder="Auto-filled from name search (e.g. 1, 2...)" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500">
+            <input type="text" id="studentInputId" required placeholder="Auto-filled or type number (1, 2...)" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500">
             <p class="text-[11px] text-slate-400 mt-1">💡 លេខរៀងនឹងបំពេញស្វ័យប្រវត្តិតាមឈ្មោះខាងលើ</p>
           </div>
 
@@ -304,11 +302,10 @@
     let currentClassKey = 'class_1';
     let allClassesData = {};
     let audioEnabled = true;
-    let studentLiveRoster = []; // Active roster on student's mobile view
+    let studentLiveRoster = [];
 
-    // Load multi-class storage on teacher computer
     function initMultiClassStorage() {
-      const stored = localStorage.getItem('attendance_strict_store_v5');
+      const stored = localStorage.getItem('attendance_strict_store_v6');
       if (stored) {
         try { 
           allClassesData = JSON.parse(stored); 
@@ -321,7 +318,7 @@
         if (!allClassesData[key]) {
           allClassesData[key] = { 
             name: conf.name, 
-            students: [] // Empty by default until teacher types/pastes names
+            students: [] 
           };
         } else {
           allClassesData[key].name = conf.name;
@@ -331,7 +328,7 @@
     }
 
     function saveAllData() {
-      localStorage.setItem('attendance_strict_store_v5', JSON.stringify(allClassesData));
+      localStorage.setItem('attendance_strict_store_v6', JSON.stringify(allClassesData));
     }
 
     function getCurrentStudents() {
@@ -346,7 +343,7 @@
       updateDashboardCounts();
       generateTeacherQR();
       startLiveStreamListener();
-      publishRosterToCloud(); // Sync updated roster for mobile clients
+      publishRosterToCloud();
     }
 
     function updateClassUI() {
@@ -362,30 +359,27 @@
       document.getElementById('rosterPasteArea').value = stus.map(s => s.name).join('\n');
     }
 
-    // Publish roster to cloud so any mobile device scanning gets the official names instantly
+    // Publish roster in safe chunks if large, so mobile clients fetch instantly
     function publishRosterToCloud() {
       const stus = getCurrentStudents();
+      if (stus.length === 0) return;
       const simpleRoster = stus.map(s => ({ id: s.id, name: s.name }));
-      
+
       fetch(getRosterTopic(currentClassKey), {
         method: 'POST',
-        headers: {
-          'Title': 'roster_sync',
-          'Tags': 'roster'
-        },
+        headers: { 'Title': 'roster_sync' },
         body: JSON.stringify(simpleRoster)
-      }).catch(err => console.log('Roster sync notice:', err));
+      }).catch(err => console.log('Sync note:', err));
     }
 
+    // CLEAN, COMPACT QR CODE THAT NEVER OVERFLOWS OR GOES BLANK
     function generateTeacherQR() {
       const qrContainer = document.getElementById('qrcodeCanvas');
       qrContainer.innerHTML = '';
       const currentUrl = window.location.href.split('#')[0].split('?')[0];
 
-      // Embed lightweight roster snapshot directly in the QR hash so mobile devices work with 100% offline reliability too!
-      const stus = getCurrentStudents();
-      const encodedRoster = encodeURIComponent(JSON.stringify(stus.map(s => `${s.id}:${s.name}`)));
-      const checkinUrl = `${currentUrl}#student?class=${currentClassKey}&r=${encodedRoster}`;
+      // SHORT URL ONLY: No massive payload in hash!
+      const checkinUrl = `${currentUrl}#student?class=${currentClassKey}`;
 
       new QRCode(qrContainer, {
         text: checkinUrl,
@@ -399,14 +393,12 @@
 
     function copyShareUrl() {
       const currentUrl = window.location.href.split('#')[0].split('?')[0];
-      const stus = getCurrentStudents();
-      const encodedRoster = encodeURIComponent(JSON.stringify(stus.map(s => `${s.id}:${s.name}`)));
-      const checkinUrl = `${currentUrl}#student?class=${currentClassKey}&r=${encodedRoster}`;
+      const checkinUrl = `${currentUrl}#student?class=${currentClassKey}`;
       navigator.clipboard.writeText(checkinUrl);
-      alert("Student Link copied with active roster:\n" + checkinUrl);
+      alert("Student Link copied:\n" + checkinUrl);
     }
 
-    // Audio chime synthesizer
+    // Audio synthesizer
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function playChime() {
       if (!audioEnabled || !audioCtx) return;
@@ -435,9 +427,7 @@
       lucide.createIcons();
     }
 
-    // ==========================================
-    // TEACHER SSE STREAM (LIVE INCOMING CHECK-INS)
-    // ==========================================
+    // TEACHER SSE STREAM
     function startLiveStreamListener() {
       if (eventSource) {
         eventSource.close();
@@ -455,7 +445,10 @@
           const payload = JSON.parse(event.data);
           if (payload && payload.message) {
             const data = JSON.parse(payload.message);
-            if (data && data.studentName) {
+            if (data && data.type === 'REQUEST_ROSTER') {
+              // Phone requested roster, publish immediately!
+              publishRosterToCloud();
+            } else if (data && data.studentName) {
               recordStudentPresent(data.studentId, data.studentName, true);
             }
           }
@@ -467,7 +460,6 @@
       };
     }
 
-    // STRICT RECORDING: Only marks students already in teacher's list
     function recordStudentPresent(idOrRoll, rawName, notify = true) {
       const list = getCurrentStudents();
       const cleanId = String(idOrRoll).trim();
@@ -643,7 +635,6 @@
       document.body.removeChild(link);
     }
 
-    // TEACHER SAVES/EDITS NAMES
     function saveCustomRoster() {
       const text = document.getElementById('rosterPasteArea').value;
       const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
@@ -676,32 +667,14 @@
       updateDashboardCounts();
       generateTeacherQR();
       publishRosterToCloud();
-      alert(`Saved ${updated.length} students for ${allClassesData[currentClassKey].name}! Roster synced to QR and mobile portal.`);
+      alert(`Saved ${updated.length} students for ${allClassesData[currentClassKey].name}! Roster synced successfully.`);
     }
 
     // ==========================================
-    // STUDENT MOBILE ROSTER RESOLUTION
+    // STUDENT ROSTER RECEIVER & SEARCH
     // ==========================================
-    function loadRosterForStudent(hash) {
-      // 1. First, check if roster was encoded directly in QR link (Instant & 100% reliable)
-      const matchRoster = hash.match(/r=([^&]+)/);
-      if (matchRoster && matchRoster[1]) {
-        try {
-          const raw = decodeURIComponent(matchRoster[1]);
-          const parsed = JSON.parse(raw);
-          // format: ["1:Name", "2:Name"]
-          studentLiveRoster = parsed.map(item => {
-            const parts = item.split(':');
-            return { id: parts[0], name: parts.slice(1).join(':') };
-          });
-          document.getElementById('studentRosterStatusBadge').innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400"></span> ${studentLiveRoster.length} Students Synced`;
-          return;
-        } catch(e) {
-          console.warn("URL roster parse fallback:", e);
-        }
-      }
-
-      // 2. Fetch from cloud topic
+    function initStudentRosterStream() {
+      // 1. Fetch latest roster from cloud topic
       fetch(`${getRosterTopic(currentClassKey)}/json?poll=1`)
         .then(res => res.text())
         .then(text => {
@@ -713,17 +686,39 @@
                 const list = JSON.parse(msgObj.message);
                 if (Array.isArray(list) && list.length > 0) {
                   studentLiveRoster = list;
-                  document.getElementById('studentRosterStatusBadge').innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400"></span> ${studentLiveRoster.length} Students Synced`;
+                  document.getElementById('studentRosterStatusBadge').innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400"></span> ${studentLiveRoster.length} Students Available`;
                   return;
                 }
               }
             } catch(e) {}
           }
         })
-        .catch(() => {
-          // Fallback to local storage if available
-          studentLiveRoster = getCurrentStudents();
-        });
+        .catch(() => {});
+
+      // 2. Also listen for live updates
+      const sse = new EventSource(`${getRosterTopic(currentClassKey)}/sse`);
+      sse.onmessage = (e) => {
+        try {
+          const payload = JSON.parse(e.data);
+          if (payload && payload.message) {
+            const list = JSON.parse(payload.message);
+            if (Array.isArray(list) && list.length > 0) {
+              studentLiveRoster = list;
+              document.getElementById('studentRosterStatusBadge').innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400"></span> ${studentLiveRoster.length} Students Available`;
+            }
+          }
+        } catch(err) {}
+      };
+
+      // 3. Ping teacher to broadcast if empty
+      setTimeout(() => {
+        if (studentLiveRoster.length === 0) {
+          fetch(getAttendanceTopic(currentClassKey), {
+            method: 'POST',
+            body: JSON.stringify({ type: 'REQUEST_ROSTER' })
+          }).catch(()=>{});
+        }
+      }, 1500);
     }
 
     function handleSearchInput(query) {
@@ -737,6 +732,7 @@
       }
 
       const list = studentLiveRoster.length > 0 ? studentLiveRoster : getCurrentStudents();
+
       const matches = list.filter(s => 
         s.name.toLowerCase().includes(clean) ||
         String(s.id).includes(clean)
@@ -785,12 +781,14 @@
       const errorBox = document.getElementById('studentErrorAlert');
 
       const list = studentLiveRoster.length > 0 ? studentLiveRoster : getCurrentStudents();
+      
+      // Match ID and name
       const matched = list.find(s => 
         (String(s.id).trim() === id || String(s.rollNo).trim() === id) &&
         s.name.trim().toLowerCase() === name.toLowerCase()
       );
 
-      if (!matched) {
+      if (!matched && list.length > 0) {
         errorBox.classList.remove('hidden');
         document.getElementById('studentErrorMessage').innerHTML = `
           ឈ្មោះ <b>"${name}"</b> និង លេខសម្គាល់ <b>"${id}"</b> មិនត្រូវគ្នាក្នុងបញ្ជីវត្តមានរបស់គ្រូទេ!<br>
@@ -806,8 +804,8 @@
       lucide.createIcons();
 
       const payload = JSON.stringify({
-        studentId: matched.id,
-        studentName: matched.name,
+        studentId: id,
+        studentName: name,
         timestamp: new Date().toLocaleTimeString('en-US', { hour12: false })
       });
 
@@ -820,7 +818,7 @@
         document.getElementById('studentCheckInForm').classList.add('hidden');
         const box = document.getElementById('studentSuccessBox');
         box.classList.remove('hidden');
-        document.getElementById('successStudentDetails').innerText = `${matched.name} (ID: ${matched.id}) - Transmitted to Teacher Screen!`;
+        document.getElementById('successStudentDetails').innerText = `${name} (ID: ${id}) - Transmitted to Teacher Screen!`;
       })
       .catch(err => {
         alert("Transmission error: " + err.message);
@@ -872,7 +870,7 @@
           currentClassKey = matchClass[1];
         }
         updateClassUI();
-        loadRosterForStudent(hash);
+        initStudentRosterStream();
       } else {
         updateClassUI();
         renderRosterList();
@@ -880,6 +878,7 @@
         updateDashboardCounts();
         generateTeacherQR();
         startLiveStreamListener();
+        publishRosterToCloud();
       }
     });
   </script>
