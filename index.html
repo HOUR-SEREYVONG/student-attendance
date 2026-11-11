@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart Attendance System (Zero-Auth Live Sync)</title>
+  <title>Smart Attendance System (Validated Live Sync)</title>
   <!-- Tailwind CSS & Lucide Icons -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -29,9 +29,9 @@
         <div>
           <h1 class="text-lg font-bold text-white flex items-center gap-2">
             Smart Attendance Manager
-            <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-medium">Instant Open Stream</span>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-medium">Verified Roster</span>
           </h1>
-          <p class="text-xs text-slate-400">ប្រព័ន្ធកត់វត្តមាន Live មិនជាប់ Permission • ៥ ថ្នាក់</p>
+          <p class="text-xs text-slate-400">ប្រព័ន្ធកត់វត្តមាន Live • ៥ ថ្នាក់ (HRU & RULE)</p>
         </div>
       </div>
 
@@ -40,12 +40,12 @@
         <label for="classSelect" class="text-xs font-semibold text-emerald-400 flex items-center gap-1">
           <i data-lucide="layers" class="w-4 h-4"></i> Class:
         </label>
-        <select id="classSelect" onchange="onClassChange(this.value)" class="bg-slate-800 text-white text-xs font-bold rounded-lg px-2.5 py-1 border border-slate-600 focus:outline-none focus:border-emerald-500 cursor-pointer">
-          <option value="class_1">Class 1 (ថ្នាក់ទី ១)</option>
-          <option value="class_2">Class 2 (ថ្នាក់ទី ២)</option>
-          <option value="class_3">Class 3 (ថ្នាក់ទី ៣)</option>
-          <option value="class_4">Class 4 (ថ្នាក់ទី ៤)</option>
-          <option value="class_5">Class 5 (ថ្នាក់ទី ៥)</option>
+        <select id="classSelect" onchange="onClassChange(this.value)" class="bg-slate-800 text-white text-xs font-bold rounded-lg px-2.5 py-1.5 border border-slate-600 focus:outline-none focus:border-emerald-500 cursor-pointer max-w-[260px] truncate">
+          <option value="class_1">HRU R6-14_Wednesday</option>
+          <option value="class_2">HRU R8-17_Thursday</option>
+          <option value="class_3">RULE B18_IE1A01_7:00-9:30</option>
+          <option value="class_4">RULE B16_IT1A01_9:30-12:00</option>
+          <option value="class_5">RULE B17_IT1B01_2:30-5:00</option>
         </select>
       </div>
 
@@ -79,7 +79,7 @@
             <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
           </span>
           <div>
-            <div class="text-xs uppercase tracking-wider text-slate-400 font-semibold" id="teacherRoomLabel">Live QR for Class 1</div>
+            <div class="text-xs uppercase tracking-wider text-slate-400 font-semibold" id="teacherRoomLabel">Live QR for Class</div>
             <div class="flex items-center gap-2">
               <span id="streamStatusBadge" class="text-sm font-mono font-bold text-emerald-400">Stream Live: Listening</span>
               <button onclick="copyShareUrl()" title="Copy Link" class="text-slate-400 hover:text-white p-1 rounded hover:bg-slate-700">
@@ -92,7 +92,7 @@
         <div class="flex items-center gap-4 text-center">
           <div class="bg-slate-900/80 px-4 py-2 rounded-xl border border-slate-800">
             <span class="text-xs text-slate-400 block">Total</span>
-            <span id="statTotal" class="text-xl font-black text-white">24</span>
+            <span id="statTotal" class="text-xl font-black text-white">0</span>
           </div>
           <div class="bg-emerald-950/40 px-4 py-2 rounded-xl border border-emerald-800/40">
             <span class="text-xs text-emerald-400 block">Present (P)</span>
@@ -100,7 +100,7 @@
           </div>
           <div class="bg-rose-950/40 px-4 py-2 rounded-xl border border-rose-800/40">
             <span class="text-xs text-rose-400 block">Remaining / Absent</span>
-            <span id="statAbsent" class="text-xl font-black text-rose-400">24</span>
+            <span id="statAbsent" class="text-xl font-black text-rose-400">0</span>
           </div>
         </div>
       </div>
@@ -112,8 +112,8 @@
             <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold mb-3">
               <i data-lucide="qr-code" class="w-3.5 h-3.5"></i> SCAN TO CHECK IN
             </div>
-            <h2 class="text-2xl font-black text-white mb-1" id="projectorClassName">Class 1 Attendance</h2>
-            <p class="text-xs text-slate-400 mb-4">Students scan via phone camera (Any 4G/5G Network)</p>
+            <h2 class="text-xl font-black text-white mb-1" id="projectorClassName">Class Attendance</h2>
+            <p class="text-xs text-slate-400 mb-4">Students scan via phone camera • Number ID Only</p>
 
             <div class="bg-white p-5 rounded-2xl shadow-xl inline-block mx-auto border-4 border-slate-700/50">
               <div id="qrcodeCanvas"></div>
@@ -126,7 +126,7 @@
 
           <div class="w-full mt-6 pt-4 border-t border-slate-700/70 flex flex-wrap gap-2 justify-center">
             <button onclick="testSimulateCheckIn()" class="px-3 py-2 bg-slate-700 hover:bg-slate-600 text-xs rounded-xl font-semibold flex items-center gap-1.5 text-slate-200">
-              <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-400"></i> Test Local Scan
+              <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-400"></i> Test Scan
             </button>
             <button onclick="resetCurrentClassAttendance()" class="px-3 py-2 bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/30 text-xs rounded-xl font-semibold flex items-center gap-1.5">
               <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Reset Class
@@ -143,7 +143,7 @@
             <div>
               <h3 class="text-lg font-bold text-white flex items-center gap-2">
                 <i data-lucide="activity" class="w-5 h-5 text-emerald-400"></i>
-                <span id="liveFeedTitle">Class 1 Live Feed</span>
+                <span id="liveFeedTitle">Live Feed</span>
               </h3>
               <p class="text-xs text-slate-400">បញ្ជីឈ្មោះសិស្សដែលបានចុះវត្តមានផ្ទាល់</p>
             </div>
@@ -154,7 +154,7 @@
 
           <div class="pt-3 border-t border-slate-700 flex items-center justify-between text-xs text-slate-400">
             <span class="text-emerald-400 font-medium flex items-center gap-1">
-              <i data-lucide="zap" class="w-4 h-4"></i> Server-Sent Events (SSE) Stream Active
+              <i data-lucide="shield-check" class="w-4 h-4"></i> Roster Verification Active
             </span>
             <button onclick="toggleAudioChime()" id="btnAudioToggle" class="text-emerald-400 flex items-center gap-1 font-medium">
               <i data-lucide="volume-2" class="w-4 h-4"></i> Chime: ON
@@ -171,7 +171,7 @@
           <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 font-bold text-xs uppercase tracking-wider mb-2">
             <i data-lucide="zap" class="w-3.5 h-3.5"></i> 30-Second Hard Copy Helper
           </span>
-          <h2 class="text-2xl font-black text-white" id="paperTitle">Paper Fill Helper (Class 1)</h2>
+          <h2 class="text-2xl font-black text-white" id="paperTitle">Paper Fill Helper</h2>
           <p class="text-sm text-slate-300 max-w-2xl mt-1">
             ចុចប៊ូតុងខាងស្តាំដើម្បីទាញយកតែ <b>"លេខរៀងសិស្សដែលអវត្តមាន (Absent)"</b>។ អ្នកគ្រូ/លោកគ្រូគ្រាន់តែកត់អក្សរ <b>A</b> លើក្រដាសតែប៉ុន្មាននាក់នេះជាការស្រេច!
           </p>
@@ -203,9 +203,9 @@
           <div>
             <h3 class="text-lg font-bold text-white flex items-center gap-2">
               <i data-lucide="file-text" class="w-5 h-5 text-emerald-400"></i>
-              Manage Student Names for <span id="manageClassLabel" class="text-emerald-400">Class 1</span>
+              Manage Student Names for <span id="manageClassLabel" class="text-emerald-400">Class</span>
             </h3>
-            <p class="text-xs text-slate-400">Paste your student names from Excel (1 name per line) to instantly customize this class.</p>
+            <p class="text-xs text-slate-400">Paste your student names from Excel (1 name per line). The system automatically assigns roll numbers (1, 2, 3...).</p>
           </div>
           <button onclick="saveCustomRoster()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-xs font-bold rounded-xl text-white flex items-center gap-1.5 shadow">
             <i data-lucide="save" class="w-4 h-4"></i> Save Roster
@@ -229,19 +229,30 @@
           </div>
         </div>
 
+        <!-- Error Message Alert Box -->
+        <div id="studentErrorAlert" class="hidden mb-4 p-3.5 rounded-2xl bg-rose-950/80 border border-rose-500/60 text-xs text-rose-200 flex items-start gap-2.5">
+          <i data-lucide="alert-triangle" class="w-5 h-5 text-rose-400 shrink-0 mt-0.5"></i>
+          <div>
+            <div class="font-bold text-rose-300">ព័ត៌មានមិនត្រឹមត្រូវ! (Invalid Information)</div>
+            <div id="studentErrorMessage" class="mt-0.5">ឈ្មោះ ឬ លេខសម្គាល់/លេខរៀង មិនត្រូវនឹងបញ្ជីវត្តមានរបស់គ្រូទេ។ សូមពិនិត្យ ហើយបញ្ចូលឡើងវិញ!</div>
+          </div>
+        </div>
+
         <form id="studentCheckInForm" onsubmit="handleStudentSubmit(event)" class="space-y-4">
           <div>
             <label class="block text-xs font-semibold text-slate-300 mb-1">
-              Select or Type Your Name / ជ្រើសរើសឈ្មោះ <span class="text-rose-400">*</span>
+              Select or Type Your Full Name / ជ្រើសរើសឈ្មោះ <span class="text-rose-400">*</span>
             </label>
-            <input type="text" id="studentInputName" required placeholder="Type your full name..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500">
+            <input list="studentListDatalist" id="studentInputName" required placeholder="Type your full name..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500" onchange="autoFillStudentId(this.value)">
+            <datalist id="studentListDatalist"></datalist>
           </div>
 
           <div>
             <label class="block text-xs font-semibold text-slate-300 mb-1">
-              Student ID / Roll No (លេខសម្គាល់ ឬ លេខរៀង) <span class="text-rose-400">*</span>
+              Student ID / Roll Number (លេខសម្គាល់ ឬ លេខរៀង) <span class="text-rose-400">*</span>
             </label>
-            <input type="text" id="studentInputId" required placeholder="e.g. 1 or STU-001" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500">
+            <input type="text" id="studentInputId" required placeholder="e.g. 1, 2, 14, 111 (Number only)" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-emerald-500">
+            <p class="text-[11px] text-slate-400 mt-1">💡 ដាក់តែលេខប៉ុណ្ណោះ (ឧទាហរណ៍៖ 1, 2, 24...)</p>
           </div>
 
           <button type="submit" id="studentSubmitBtn" class="w-full py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-lg shadow-emerald-600/30 transition-all flex items-center justify-center gap-2 mt-2">
@@ -260,9 +271,16 @@
 
   <script>
     // ==========================================
-    // ZERO-AUTH REAL-TIME PUBSUB TOPIC
+    // 1. CLASS DEFINITIONS & RENAMING
     // ==========================================
-    // Uses open standard HTTPS PubSub topic based on your GitHub username & class
+    const CLASS_CONFIG = {
+      'class_1': { name: 'HRU R6-14_Wednesday' },
+      'class_2': { name: 'HRU R8-17_Thursday' },
+      'class_3': { name: 'RULE B18_IE1A01_7:00-9:30' },
+      'class_4': { name: 'RULE B16_IT1A01_9:30-12:00' },
+      'class_5': { name: 'RULE B17_IT1B01_2:30-5:00' }
+    };
+
     function getTopicUrl(classKey) {
       return `https://ntfy.sh/nie_hour_sereyvong_attend_${classKey}`;
     }
@@ -280,12 +298,12 @@
     let allClassesData = {};
     let audioEnabled = true;
 
-    function buildDefaultClass(classIndex) {
+    function buildDefaultClass() {
       const list = [];
       for (let i = 1; i <= 24; i++) {
         const name = KHMER_NAMES[(i - 1) % KHMER_NAMES.length];
         list.push({
-          id: `C${classIndex}-STU-${String(i).padStart(3, '0')}`,
+          id: `${i}`,         // Numbers only: 1, 2, 3...
           rollNo: i,
           name: name,
           status: 'UNMARKED',
@@ -296,21 +314,33 @@
     }
 
     function initMultiClassStorage() {
-      const stored = localStorage.getItem('attendance_multiclass_store');
+      const stored = localStorage.getItem('attendance_multiclass_store_v2');
       if (stored) {
-        try { allClassesData = JSON.parse(stored); } catch(e) { allClassesData = {}; }
+        try { 
+          allClassesData = JSON.parse(stored); 
+        } catch(e) { 
+          allClassesData = {}; 
+        }
       }
-      for (let i = 1; i <= 5; i++) {
-        const k = `class_${i}`;
-        if (!allClassesData[k] || !allClassesData[k].students || allClassesData[k].students.length === 0) {
-          allClassesData[k] = { name: `Class ${i}`, students: buildDefaultClass(i) };
+      
+      for (const [key, conf] of Object.entries(CLASS_CONFIG)) {
+        if (!allClassesData[key] || !allClassesData[key].students || allClassesData[key].students.length === 0) {
+          allClassesData[key] = { name: conf.name, students: buildDefaultClass() };
+        } else {
+          // Keep current configured name
+          allClassesData[key].name = conf.name;
+          // Ensure all IDs are clean numbers (e.g. migrate C5-STU-001 -> 1)
+          allClassesData[key].students.forEach((s, idx) => {
+            s.id = `${s.rollNo || idx + 1}`;
+            s.rollNo = idx + 1;
+          });
         }
       }
       saveAllData();
     }
 
     function saveAllData() {
-      localStorage.setItem('attendance_multiclass_store', JSON.stringify(allClassesData));
+      localStorage.setItem('attendance_multiclass_store_v2', JSON.stringify(allClassesData));
     }
 
     function getCurrentStudents() {
@@ -334,7 +364,12 @@
       document.getElementById('liveFeedTitle').innerText = `${cName} Live Feed`;
       document.getElementById('paperTitle').innerText = `Paper Fill Helper (${cName})`;
       document.getElementById('manageClassLabel').innerText = cName;
+      document.getElementById('studentViewClassName').innerText = `${cName} Check-in`;
       document.getElementById('rosterPasteArea').value = getCurrentStudents().map(s => s.name).join('\n');
+
+      // Update student datalist for autocomplete
+      const dl = document.getElementById('studentListDatalist');
+      dl.innerHTML = getCurrentStudents().map(s => `<option value="${s.name}">ID / Roll #${s.id}</option>`).join('');
     }
 
     function generateTeacherQR() {
@@ -360,7 +395,7 @@
       alert("Link copied to clipboard:\n" + checkinUrl);
     }
 
-    // Audio chime synthesizer
+    // Audio synthesizer
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     function playChime() {
       if (!audioEnabled || !audioCtx) return;
@@ -390,7 +425,7 @@
     }
 
     // ==========================================
-    // TEACHER SSE STREAM (LISTENS TO PHONES VIA HTTPS)
+    // TEACHER SSE STREAM
     // ==========================================
     function startLiveStreamListener() {
       if (eventSource) {
@@ -401,7 +436,7 @@
       eventSource = new EventSource(streamUrl);
 
       eventSource.onopen = () => {
-        document.getElementById('streamStatusBadge').innerText = "Live Stream: Connected";
+        document.getElementById('streamStatusBadge').innerText = "Stream Live: Listening";
       };
 
       eventSource.onmessage = (event) => {
@@ -413,9 +448,7 @@
               recordStudentPresent(data.studentId, data.studentName, true);
             }
           }
-        } catch (e) {
-          // heartbeat/keepalive message
-        }
+        } catch (e) {}
       };
 
       eventSource.onerror = () => {
@@ -425,27 +458,23 @@
 
     function recordStudentPresent(idOrRoll, rawName, notify = true) {
       const list = getCurrentStudents();
+      const cleanId = String(idOrRoll).trim();
+      const cleanName = String(rawName).trim().toLowerCase();
+
+      // STRICT VALIDATION MATCH
       const student = list.find(s => 
-        s.id.toUpperCase() === String(idOrRoll).trim().toUpperCase() ||
-        String(s.rollNo) === String(idOrRoll).trim() ||
-        s.name.trim().toLowerCase() === String(rawName).trim().toLowerCase()
+        (String(s.id).trim() === cleanId || String(s.rollNo).trim() === cleanId) &&
+        s.name.trim().toLowerCase() === cleanName
       );
 
-      if (student) {
-        if (student.status === 'P') return student;
-        student.status = 'P';
-        student.timestamp = new Date().toLocaleTimeString('en-US', { hour12: false });
-      } else {
-        const newRoll = list.length + 1;
-        const newStu = {
-          id: idOrRoll || `STU-${newRoll}`,
-          rollNo: newRoll,
-          name: rawName,
-          status: 'P',
-          timestamp: new Date().toLocaleTimeString('en-US', { hour12: false })
-        };
-        list.push(newStu);
+      if (!student) {
+        return null; // Reject: not in teacher's roster
       }
+
+      if (student.status === 'P') return student; // Already checked in
+
+      student.status = 'P';
+      student.timestamp = new Date().toLocaleTimeString('en-US', { hour12: false });
 
       saveAllData();
       updateDashboardCounts();
@@ -477,7 +506,7 @@
       const list = getCurrentStudents();
       const filtered = list.filter(s => 
         s.name.toLowerCase().includes(filter) || 
-        s.id.toLowerCase().includes(filter) || 
+        String(s.id).includes(filter) || 
         String(s.rollNo).includes(filter)
       );
 
@@ -490,10 +519,10 @@
             <div class="flex items-center gap-3">
               <span class="w-8 h-8 rounded-xl font-mono text-xs font-bold flex items-center justify-center ${
                 isPresent ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-400'
-              }">#${s.rollNo}</span>
+              }">#${s.id}</span>
               <div>
                 <div class="text-sm font-semibold text-white">${s.name}</div>
-                <div class="text-xs text-slate-400 font-mono">${s.id}</div>
+                <div class="text-xs text-slate-400 font-mono">ID: ${s.id}</div>
               </div>
             </div>
             <div class="flex items-center gap-2">
@@ -512,7 +541,7 @@
     }
 
     function toggleAttendanceStatus(id) {
-      const s = getCurrentStudents().find(item => item.id === id);
+      const s = getCurrentStudents().find(item => String(item.id) === String(id));
       if (s) {
         s.status = s.status === 'P' ? 'UNMARKED' : 'P';
         s.timestamp = s.status === 'P' ? new Date().toLocaleTimeString('en-US', { hour12: false }) : null;
@@ -549,7 +578,7 @@
 
       grid.innerHTML = absents.map(s => `
         <div class="p-3 rounded-2xl bg-rose-950/40 border border-rose-500/40 text-center flex flex-col items-center justify-center">
-          <span class="text-xl font-black text-rose-300">#${s.rollNo}</span>
+          <span class="text-xl font-black text-rose-300">#${s.id}</span>
           <span class="text-xs font-semibold text-white truncate max-w-full">${s.name}</span>
           <span class="text-[10px] font-mono text-rose-400 mt-1 px-2 py-0.5 rounded bg-rose-900/50">Mark: A</span>
         </div>
@@ -576,9 +605,9 @@
     }
 
     function exportToCSV() {
-      let csv = `Roll No,Student ID,Full Name,Status,Timestamp\n`;
+      let csv = `Student ID,Roll No,Full Name,Status,Timestamp\n`;
       getCurrentStudents().forEach(s => {
-        csv += `${s.rollNo},"${s.id}","${s.name}","${s.status}","${s.timestamp || ''}"\n`;
+        csv += `${s.id},${s.rollNo},"${s.name}","${s.status}","${s.timestamp || ''}"\n`;
       });
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement("a");
@@ -595,7 +624,7 @@
       if (lines.length === 0) return alert("Please enter at least one student name.");
 
       const updated = lines.map((name, idx) => ({
-        id: `C${currentClassKey.split('_')[1]}-STU-${String(idx + 1).padStart(3, '0')}`,
+        id: `${idx + 1}`,   // Pure number: 1, 2, 3...
         rollNo: idx + 1,
         name: name,
         status: 'UNMARKED',
@@ -608,39 +637,67 @@
       renderRosterList();
       renderPaperHelper();
       updateDashboardCounts();
-      alert(`Updated ${allClassesData[currentClassKey].name} roster with ${updated.length} students!`);
+      alert(`Updated ${allClassesData[currentClassKey].name} roster with ${updated.length} students! IDs are set to 1 to ${updated.length}.`);
     }
 
     // ==========================================
-    // STUDENT SUBMISSION VIA OPEN POST (HTTPS)
+    // STUDENT SUBMISSION & STRICT VERIFICATION
     // ==========================================
+    function autoFillStudentId(nameVal) {
+      const list = getCurrentStudents();
+      const found = list.find(s => s.name.trim().toLowerCase() === nameVal.trim().toLowerCase());
+      if (found) {
+        document.getElementById('studentInputId').value = found.id;
+        document.getElementById('studentErrorAlert').classList.add('hidden');
+      }
+    }
+
     function handleStudentSubmit(e) {
       e.preventDefault();
       const name = document.getElementById('studentInputName').value.trim();
       const id = document.getElementById('studentInputId').value.trim();
       const btn = document.getElementById('studentSubmitBtn');
+      const errorBox = document.getElementById('studentErrorAlert');
 
+      // 1. Client-side roster check against teacher's registered list
+      const list = getCurrentStudents();
+      const matched = list.find(s => 
+        (String(s.id).trim() === id || String(s.rollNo).trim() === id) &&
+        s.name.trim().toLowerCase() === name.toLowerCase()
+      );
+
+      if (!matched) {
+        errorBox.classList.remove('hidden');
+        document.getElementById('studentErrorMessage').innerHTML = `
+          ឈ្មោះ <b>"${name}"</b> និង លេខរៀង <b>"${id}"</b> មិនមាន ឬ មិនត្រូវគ្នាក្នុងបញ្ជីថ្នាក់ <b>${allClassesData[currentClassKey].name}</b> ទេ។<br>
+          <span class="text-rose-300">👉 សូមពិនិត្យអក្ខរាវិរុទ្ធឈ្មោះ ឬ លេខរៀងឡើងវិញ រួចចុច Submit ម្តងទៀត!</span>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      // Validated: hide error box & submit
+      errorBox.classList.add('hidden');
       btn.disabled = true;
       btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Submitting...`;
       lucide.createIcons();
 
       const payload = JSON.stringify({
-        studentId: id,
-        studentName: name,
+        studentId: matched.id,
+        studentName: matched.name,
         timestamp: new Date().toLocaleTimeString('en-US', { hour12: false })
       });
 
-      // Simple open POST fetch - No API keys, no security rules, no login
       fetch(getTopicUrl(currentClassKey), {
         method: 'POST',
         body: payload
       })
       .then(res => {
-        if (!res.ok) throw new Error("HTTP error " + res.status);
+        if (!res.ok) throw new Error("HTTP " + res.status);
         document.getElementById('studentCheckInForm').classList.add('hidden');
         const box = document.getElementById('studentSuccessBox');
         box.classList.remove('hidden');
-        document.getElementById('successStudentDetails').innerText = `${name} (${id}) - Transmitted to Teacher Screen!`;
+        document.getElementById('successStudentDetails').innerText = `${matched.name} (ID: ${matched.id}) - Transmitted to Teacher Screen!`;
       })
       .catch(err => {
         alert("Transmission error: " + err.message);
@@ -690,8 +747,8 @@
         const matchClass = hash.match(/class=(class_[1-5])/);
         if (matchClass && matchClass[1]) {
           currentClassKey = matchClass[1];
-          document.getElementById('studentViewClassName').innerText = `${allClassesData[currentClassKey].name} Attendance`;
         }
+        updateClassUI();
       } else {
         updateClassUI();
         renderRosterList();
